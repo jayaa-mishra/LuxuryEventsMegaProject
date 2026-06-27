@@ -1,0 +1,316 @@
+@import "tailwindcss";
+
+@theme {
+  --color-rose:      #810000; /* Crimson */
+  --color-rose-soft: #630000; /* Burgundy */
+  --color-blush:     #FCFAFA; /* Very light cool cream */
+  --color-peach:     #E8E3DD; /* Muted stone accent */
+  --color-plum:      #111111; /* Deep charcoal almost black */
+  
+  --font-poppins: "Poppins", sans-serif;
+  --font-manrope: "Manrope", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-blush);
+    color: var(--color-plum);
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-poppins);
+    letter-spacing: -0.02em;
+  }
+  
+  h4, h5, h6 {
+    font-family: var(--font-manrope);
+    letter-spacing: -0.01em;
+  }
+}
+
+.font-sans {
+  font-family: var(--font-inter);
+}
+
+.font-serif {
+  font-family: var(--font-manrope);
+}
+
+/* ── Primary palette ─────────────────────────────── */
+.text-rose       { color: #810000; }
+.bg-rose         { background-color: #810000; }
+.text-rose-soft  { color: #630000; }
+.bg-rose-soft    { background-color: #630000; }
+.text-blush      { color: #EEEBDD; }
+.bg-blush        { background-color: #EEEBDD; }
+.text-peach      { color: #C4B5A2; }
+.bg-peach        { background-color: #C4B5A2; }
+.text-plum       { color: #1B1717; }
+.bg-plum         { background-color: #1B1717; }
+
+/* ── Legacy aliases ──────────────────────────────── */
+.text-olive   { color: #810000; }
+.bg-olive     { background-color: #810000; }
+.text-cream   { color: #EEEBDD; }
+.bg-cream     { background-color: #EEEBDD; }
+.text-charcoal { color: #1B1717; }
+.bg-charcoal  { background-color: #1B1717; }
+
+/* ── Decorative pinstripes ───────────────────────── */
+.bg-pinstripe {
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent,
+    transparent 10px,
+    rgba(129, 0, 0, 0.04) 10px,
+    rgba(129, 0, 0, 0.04) 11px
+  );
+}
+
+.bg-pinstripe-light {
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent,
+    transparent 10px,
+    rgba(248, 244, 236, 0.12) 10px,
+    rgba(248, 244, 236, 0.12) 11px
+  );
+}
+
+/* ════════════════════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════════════════ */
+
+/* Page / hero entrance */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Purely opacity fade */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Slide in from left */
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide in from right */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Subtle reveal with slight scale */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Underline expand (for nav links etc.) */
+@keyframes underline-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Shimmer for image placeholders */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ════════════════════════════════════════════════════
+   PAGE LOAD ANIMATION UTILITIES
+═══════════════════════════════════════════════════ */
+
+.animate-fade-up {
+  animation: fade-up 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out both;
+}
+.animate-slide-left {
+  animation: slide-in-left 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-slide-right {
+  animation: slide-in-right 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-reveal {
+  animation: reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Stagger helpers */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+
+/* ════════════════════════════════════════════════════
+   SCROLL REVEAL (driven by JS IntersectionObserver)
+═══════════════════════════════════════════════════ */
+
+/* Hidden state – elements start hidden before JS runs */
+.sr-hidden {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Revealed state – class toggled by JS */
+.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sr-hidden-left {
+  opacity: 0;
+  transform: translateX(-28px);
+}
+.sr-visible-left {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sr-hidden-right {
+  opacity: 0;
+  transform: translateX(28px);
+}
+.sr-visible-right {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Transition delays for staggering scroll reveals */
+.sr-delay-1 { transition-delay: 80ms !important; }
+.sr-delay-2 { transition-delay: 170ms !important; }
+.sr-delay-3 { transition-delay: 260ms !important; }
+.sr-delay-4 { transition-delay: 350ms !important; }
+
+/* ════════════════════════════════════════════════════
+   BUTTON / LINK HOVER EFFECTS
+═══════════════════════════════════════════════════ */
+
+/* Luxury button base – all transitions on transform + bg only */
+.btn-luxury {
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s ease, background-color 0.3s ease,
+              transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease;
+}
+.btn-luxury:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(192, 107, 132, 0.25);
+}
+.btn-luxury:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Ripple fill from bottom */
+.btn-luxury::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-luxury:hover::after {
+  transform: scaleY(1);
+}
+
+/* Underline link hover */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ════════════════════════════════════════════════════
+   IMAGE HOVER — already on cards, centralised here
+═══════════════════════════════════════════════════ */
+.img-zoom {
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.6s ease;
+  will-change: transform;
+}
+.group:hover .img-zoom {
+  transform: scale(1.06);
+  filter: saturate(1);
+}
+
+/* ════════════════════════════════════════════════════
+   CURSOR / NAV INDICATOR
+═══════════════════════════════════════════════════ */
+.nav-link {
+  position: relative;
+  transition: opacity 0.25s ease;
+}
+.nav-link::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover::before,
+.nav-link.active::before {
+  transform: scaleX(1);
+}
+
+/* ════════════════════════════════════════════════════
+   CARD HOVER
+═══════════════════════════════════════════════════ */
+.card-hover {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(61, 37, 51, 0.08);
+}
+
+/* ════════════════════════════════════════════════════
+   PAGE TRANSITION WRAPPER
+═══════════════════════════════════════════════════ */
+.page-enter {
+  animation: fade-in 0.45s ease-out both;
+}
