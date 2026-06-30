@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import { getDashboardMetrics, getPaymentAnalytics } from '../services/analytics.service';
+import { analyticsService } from '../services/analytics.service';
+import { sendSuccess } from '../utils/apiResponse';
 
-export const getDashboardAnalytics = asyncHandler(async (req: Request, res: Response) => {
-  const metrics = await getDashboardMetrics();
-  res.status(200).json({ success: true, data: metrics });
+export const getDashboardAnalytics = asyncHandler(async (_req: Request, res: Response) => {
+  const metrics = await analyticsService.getDashboardMetrics();
+  sendSuccess(res, metrics, 'Dashboard analytics fetched successfully');
 });
 
-export const getPaymentAnalyticsData = asyncHandler(async (req: Request, res: Response) => {
-  const metrics = await getPaymentAnalytics();
-  res.status(200).json({ success: true, data: metrics });
+export const getPaymentAnalyticsData = asyncHandler(async (_req: Request, res: Response) => {
+  const metrics = await analyticsService.getPaymentAnalytics();
+  sendSuccess(res, metrics, 'Payment analytics fetched successfully');
 });

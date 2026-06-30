@@ -1,8 +1,24 @@
 import express from 'express';
-import { getWorkflow, advanceWorkflow } from '../controllers/workflow.controller';
+import { getWorkflow, getWorkflowByEntity, advanceWorkflow } from '../controllers/workflow.controller';
 import { protect, admin } from '../middlewares/auth.middleware';
+import { validateRequest } from '../middlewares/validate.middleware';
+import { advanceWorkflowValidator } from '../middlewares/validators';
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * /workflows/entity/{id}:
+ *   get:
+ *     summary: Get a workflow by its lead or booking id (auto-resolves)
+ *     tags: [Workflow]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Workflow details
+ */
+router.route('/entity/:id').get(protect, getWorkflowByEntity);
 
 /**
  * @swagger
@@ -22,7 +38,7 @@ const router = express.Router();
  *       200:
  *         description: Workflow advanced successfully
  */
-router.route('/:id/advance').post(protect, admin, advanceWorkflow);
+router.route('/:id/advance').post(protect, admin, advanceWorkflowValidator, validateRequest, advanceWorkflow);
 
 /**
  * @swagger

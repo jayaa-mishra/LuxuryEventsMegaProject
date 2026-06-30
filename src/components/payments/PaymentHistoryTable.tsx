@@ -9,7 +9,7 @@ export function PaymentHistoryTable() {
     const fetchPayments = async () => {
       try {
         const res = await apiClient.get('/payments/my-payments');
-        setPayments(res.data);
+        setPayments(res.data.data ?? []);
       } catch (err) {
         console.error('Failed to fetch payments', err);
       } finally {

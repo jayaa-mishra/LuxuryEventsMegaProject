@@ -4,12 +4,14 @@ import {
   generateQuotationPdf, regenerateQuotationPdf, getQuotationPdf, downloadQuotation, getQuotationHistory
 } from '../controllers/quotation.controller';
 import { protect, admin } from '../middlewares/auth.middleware';
+import { validateRequest } from '../middlewares/validate.middleware';
+import { createQuotationValidator } from '../middlewares/validators';
 
 const router = express.Router();
 
 router.route('/')
   .get(protect, admin, getQuotations)
-  .post(protect, admin, createQuotation);
+  .post(protect, admin, createQuotationValidator, validateRequest, createQuotation);
 
 router.route('/:id')
   .get(protect, getQuotationById)

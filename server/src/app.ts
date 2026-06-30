@@ -5,10 +5,8 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
-import mongoSanitize from 'express-mongo-sanitize';
-import xss from 'xss-clean';
-import hpp from 'hpp';
 import { notFound, errorHandler } from './middlewares/error.middleware';
+import { sanitizeBody } from './middlewares/sanitize.middleware';
 
 // Route imports
 import authRoutes from './routes/auth.routes';
@@ -49,18 +47,18 @@ app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true,
 }));
+
+// Razorpay webhook needs the RAW body for HMAC verification, so capture it as a
+// Buffer before the JSON parser runs. express.json() then skips it (req._body set).
+app.use('/api/v1/payments/webhook', express.raw({ type: '*/*' }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Prevent NoSQL injections
-// app.use(mongoSanitize());
-
-// Prevent XSS attacks
-// app.use(xss());
-
-// Prevent HTTP Parameter Pollution
-// app.use(hpp());
+// Strip Mongo operators ($, dotted keys) from request bodies (NoSQL injection guard).
+// Express 5 makes req.query/req.params read-only, so we only sanitize req.body.
+app.use(sanitizeBody);
 
 // Mount Routes
 setupSwagger(app);
@@ -80,6 +78,11 @@ app.use('/api/v1/notifications', notificationRoutes);
 // Root route
 app.get('/', (req, res) => {
   res.send('Event Management Platform API is running...');
+});
+
+// Liveness/readiness probe (used by Docker healthchecks and the gateway)
+app.get('/health', (req, res) => {
+  res.status(200).json({ success: true, service: 'main-api', status: 'ok', uptime: process.uptime() });
 });
 
 // Error Handling Middleware

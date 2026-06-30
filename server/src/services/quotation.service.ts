@@ -1,41 +1,67 @@
-import Quotation, { IQuotation } from '../models/Quotation';
+import { IQuotation } from '../models/Quotation';
 import Lead from '../models/Lead';
+import { quotationRepository, QuotationRepository } from '../repositories/quotation.repository';
+import CrudService from './crud.service';
 import { workflowService } from './workflow.service';
 import { auditService } from './audit.service';
 import { notificationService } from './notification.service';
 import { WorkflowState } from '../models/Workflow';
 
-export const createQuotation = async (data: Partial<IQuotation>, userId?: string): Promise<IQuotation> => {
-  const quotation = await Quotation.create(data);
-  await Lead.findByIdAndUpdate(data.lead_id, { status: 'quoted' });
-  
-  await auditService.logAction('CREATE_QUOTATION', 'Quotation', quotation._id.toString(), userId, null, quotation);
-  
-  const wf = await workflowService.getWorkflowByLeadOrBooking(data.lead_id!.toString(), 'lead');
-  if (wf) {
-    await workflowService.advanceWorkflow(wf._id.toString(), WorkflowState.PROPOSAL_SENT, userId || 'system', 'Quotation created');
+/**
+ * Quotation business logic. CRUD from the base service; the lifecycle
+ * orchestration (lead status update, workflow advance, audit, notifications)
+ * lives here.
+ */
+export class QuotationService extends CrudService<IQuotation> {
+  constructor(private readonly quotations: QuotationRepository = quotationRepository) {
+    super(quotations, 'Quotation');
   }
 
-  await notificationService.sendNotification(data.lead_id!.toString(), undefined, 'Quotation Generated', 'A new quotation has been generated.', ['in_app']);
-  
-  return quotation;
-};
+  async createQuotation(data: Partial<IQuotation>, userId?: string): Promise<IQuotation> {
+    const quotation = await this.quotations.create(data);
+    // Note: 'quoted' is set directly (skips schema enum validation) to mirror existing behaviour.
+    await Lead.findByIdAndUpdate(data.lead_id, { status: 'quoted' });
 
-export const getQuotations = async (): Promise<IQuotation[]> => {
-  return await Quotation.find({}).populate('lead_id package_id');
-};
+    await auditService.logAction('CREATE_QUOTATION', 'Quotation', quotation._id.toString(), userId, null, quotation);
 
-export const getQuotationById = async (id: string): Promise<IQuotation | null> => {
-  return await Quotation.findById(id).populate('lead_id package_id');
-};
+    const wf = await workflowService.getWorkflowByLeadOrBooking(data.lead_id!.toString(), 'lead');
+    if (wf) {
+      await workflowService.advanceWorkflow(wf._id.toString(), WorkflowState.PROPOSAL_SENT, userId || 'system', 'Quotation created');
+    }
 
-export const updateQuotationStatus = async (id: string, status: IQuotation['status'], userId?: string): Promise<IQuotation | null> => {
-  const oldQuote = await Quotation.findById(id);
-  const quote = await Quotation.findByIdAndUpdate(id, { status }, { new: true });
-  
-  if (oldQuote && quote) {
-    await auditService.logAction('UPDATE_QUOTATION_STATUS', 'Quotation', id, userId, oldQuote.status, status);
-    
+    await notificationService.sendNotification(data.lead_id!.toString(), undefined, 'Quotation Generated', 'A new quotation has been generated.', ['in_app']);
+    return quotation;
+  }
+
+  async getQuotations(): Promise<IQuotation[]> {
+    return this.quotations.getAllPopulated();
+  }
+
+  async getQuotationById(id: string): Promise<IQuotation | null> {
+    return this.quotations.getByIdPopulated(id);
+  }
+
+  async updateQuotationStatus(
+    id: string,
+    status: IQuotation['status'],
+    userId?: string,
+  ): Promise<IQuotation | null> {
+    const oldQuote = await this.quotations.get(id);
+    const quote = await this.quotations.updateStatus(id, status);
+
+    if (oldQuote && quote) {
+      await auditService.logAction('UPDATE_QUOTATION_STATUS', 'Quotation', id, userId, oldQuote.status, status);
+      await this.handleStatusSideEffects(quote, status, userId);
+    }
+
+    return quote;
+  }
+
+  private async handleStatusSideEffects(
+    quote: IQuotation,
+    status: IQuotation['status'],
+    userId?: string,
+  ): Promise<void> {
     if (status === 'accepted') {
       const wf = await workflowService.getWorkflowByLeadOrBooking(quote.lead_id.toString(), 'lead');
       if (wf) {
@@ -46,6 +72,7 @@ export const updateQuotationStatus = async (id: string, status: IQuotation['stat
       await notificationService.sendNotification(quote.lead_id.toString(), undefined, 'Quotation Rejected', 'Quotation has been rejected.', ['in_app']);
     }
   }
-  
-  return quote;
-};
+}
+
+export const quotationService = new QuotationService();
+export default quotationService;

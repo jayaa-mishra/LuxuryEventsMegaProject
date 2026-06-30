@@ -15,7 +15,7 @@ export function usePayment() {
     try {
       setLoading(true);
       const res = await apiClient.post('/payments/order', { bookingId });
-      const { amount, orderId, currency, paymentId } = res.data;
+      const { amount, orderId, currency, paymentId } = res.data.data;
 
       const options = {
         key: process.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_mock',

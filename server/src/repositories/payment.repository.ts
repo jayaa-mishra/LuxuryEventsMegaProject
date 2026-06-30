@@ -1,21 +1,31 @@
 import Payment, { IPayment } from '../models/Payment';
+import CrudRepository from './crud.repository';
 
-class PaymentRepository {
+/**
+ * Payment data-access layer. Extends the generic CrudRepository; the named
+ * methods below are kept for readability at call sites.
+ */
+export class PaymentRepository extends CrudRepository<IPayment> {
+  constructor() {
+    super(Payment);
+  }
+
   async createPayment(data: Partial<IPayment>): Promise<IPayment> {
-    return await Payment.create(data);
+    return this.create(data);
   }
 
   async getPaymentByOrderId(orderId: string): Promise<IPayment | null> {
-    return await Payment.findOne({ razorpayOrderId: orderId });
+    return this.findOne({ razorpayOrderId: orderId });
   }
 
   async updatePaymentStatus(id: string, updates: Partial<IPayment>): Promise<IPayment | null> {
-    return await Payment.findByIdAndUpdate(id, updates, { new: true });
+    return this.update(id, updates);
   }
 
   async getPaymentsByClient(clientId: string): Promise<IPayment[]> {
-    return await Payment.find({ clientId }).sort({ createdAt: -1 });
+    return this.getAll({ filter: { clientId }, sort: { createdAt: -1 } });
   }
 }
 
 export const paymentRepository = new PaymentRepository();
+export default paymentRepository;

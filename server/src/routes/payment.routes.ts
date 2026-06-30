@@ -1,6 +1,8 @@
 import express from 'express';
 import { createPaymentOrder, verifyPayment, getMyPayments } from '../controllers/payment.controller';
 import { protect } from '../middlewares/auth.middleware';
+import { validateRequest } from '../middlewares/validate.middleware';
+import { createPaymentOrderValidator, verifyPaymentValidator } from '../middlewares/validators';
 
 const router = express.Router();
 
@@ -16,7 +18,7 @@ const router = express.Router();
  *       200:
  *         description: Order created
  */
-router.post('/order', protect, createPaymentOrder);
+router.post('/order', protect, createPaymentOrderValidator, validateRequest, createPaymentOrder);
 router.get('/my-payments', protect, getMyPayments);
 
 /**
@@ -31,7 +33,7 @@ router.get('/my-payments', protect, getMyPayments);
  *       200:
  *         description: Payment verified
  */
-router.post('/verify', protect, verifyPayment);
+router.post('/verify', protect, verifyPaymentValidator, validateRequest, verifyPayment);
 
 import { handleRazorpayWebhook } from '../controllers/webhook.controller';
 

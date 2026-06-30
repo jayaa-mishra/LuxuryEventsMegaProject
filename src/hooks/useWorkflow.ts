@@ -8,7 +8,7 @@ export function useWorkflow(entityId: string) {
   const fetchWorkflow = async () => {
     try {
       const res = await apiClient.get(`/workflows/entity/${entityId}`);
-      setWorkflow(res.data);
+      setWorkflow(res.data.data);
     } catch (err) {
       console.error(err);
     } finally {

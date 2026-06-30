@@ -1,9 +1,19 @@
-version: '3.8'
+# Luxury Events — full stack (microservices)
+#
+#   frontend ─▶ gateway ─┬─▶ main API (packages, leads, bookings, ...)
+#                        ├─▶ auth-service (identity / JWT)
+#                        └─▶ notification-service (BullMQ worker + enqueue API)
+#
+#   main API & auth-service ─▶ MongoDB
+#   main API & notification-service ─▶ Redis (cache + queue)
+#
+# Copy .env.example to .env and fill in secrets before running `docker compose up`.
 
 services:
   mongodb:
-    image: mongo:latest
+    image: mongo:7
     container_name: luxury_events_mongo
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
@@ -16,24 +26,119 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: luxury_events_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
     container_name: luxury_events_backend
+    restart: unless-stopped
+    expose:
+      - "5000"
     ports:
       - "5000:5000"
     environment:
       - NODE_ENV=production
       - PORT=5000
       - MONGO_URI=mongodb://mongodb:27017/luxury_events
-      # These variables must be injected during deployment or via an env file:
-      # - JWT_SECRET=...
-      # - CLOUDINARY_CLOUD_NAME=...
-      # - RAZORPAY_KEY_ID=...
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-}
     depends_on:
       mongodb:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: luxury_events_auth
+    restart: unless-stopped
+    expose:
+      - "5001"
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - MONGO_URI=mongodb://mongodb:27017/luxury_events
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: luxury_events_notifications
+    restart: unless-stopped
+    expose:
+      - "5002"
+    environment:
+      - NODE_ENV=production
+      - PORT=5002
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - WORKER_CONCURRENCY=5
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: luxury_events_gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
+      - MAIN_API_URL=http://backend:5000
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5002
+    depends_on:
+      - backend
+      - auth-service
+      - notification-service
     networks:
       - app_network
 
@@ -41,18 +146,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Same-origin relative path; nginx proxies /api/* to the gateway.
+        VITE_API_BASE_URL: /api/v1
     container_name: luxury_events_frontend
+    restart: unless-stopped
     ports:
       - "80:80"
-    environment:
-      - VITE_API_BASE_URL=/api
     depends_on:
-      - backend
+      - gateway
     networks:
       - app_network
 
 volumes:
   mongodb_data:
+  redis_data:
 
 networks:
   app_network:

@@ -21,9 +21,9 @@ export const galleryService = {
   uploadImage: async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
-    const { data } = await apiClient.post<{url: string, public_id: string}>('/upload', formData, {
+    const { data } = await apiClient.post<ApiResponse<{ url: string; public_id: string }>>('/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    return data;
+    return data.data;
   }
 };

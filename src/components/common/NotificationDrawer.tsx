@@ -8,8 +8,9 @@ export function NotificationDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
   const fetchNotifications = async () => {
     try {
       const res = await apiClient.get('/notifications');
-      setNotifications(res.data);
-      setUnreadCount(res.data.filter((n: any) => !n.isRead).length);
+      const items = res.data.data ?? [];
+      setNotifications(items);
+      setUnreadCount(items.filter((n: any) => !n.isRead).length);
     } catch (err) {
       console.error(err);
     }

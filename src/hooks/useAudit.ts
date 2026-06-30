@@ -14,9 +14,10 @@ export function useAudit() {
       let url = `/audit?page=${page}&limit=${limit}`;
       if (entityType) url += `&entityType=${entityType}`;
       const res = await apiClient.get(url);
-      setLogs(res.data.logs);
-      setTotal(res.data.total);
-      setPages(res.data.pages);
+      const payload = res.data.data;
+      setLogs(payload.logs);
+      setTotal(payload.total);
+      setPages(payload.pages);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to fetch audit logs');
     } finally {

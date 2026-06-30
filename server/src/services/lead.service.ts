@@ -1,41 +1,84 @@
-import Lead, { ILead } from '../models/Lead';
+import { ILead } from '../models/Lead';
+import { leadRepository, LeadRepository } from '../repositories/lead.repository';
+import CrudService from './crud.service';
 import { workflowService } from './workflow.service';
 import { auditService } from './audit.service';
 import { notificationService } from './notification.service';
 import { WorkflowState } from '../models/Workflow';
+import { AppError } from '../utils/apiError';
 
-export const createLead = async (data: Partial<ILead>, userId?: string): Promise<ILead> => {
-  const lead = await Lead.create(data);
-  await workflowService.initializeWorkflow(lead._id.toString(), userId || 'system');
-  await auditService.logAction('CREATE_LEAD', 'Lead', lead._id.toString(), userId, null, lead);
-  return lead;
-};
+/**
+ * Lead business logic. CRUD comes from the base service; this class adds the
+ * cross-cutting orchestration (workflow initialisation, audit trail,
+ * notifications) that a lead's lifecycle requires.
+ */
+export class LeadService extends CrudService<ILead> {
+  constructor(private readonly leads: LeadRepository = leadRepository) {
+    super(leads, 'Lead');
+  }
 
-export const getAllLeads = async (): Promise<ILead[]> => {
-  return await Lead.find({}).sort({ createdAt: -1 }).populate('desired_package');
-};
+  async createLead(data: Partial<ILead>, userId?: string): Promise<ILead> {
+    const lead = await this.leads.create(data);
+    await workflowService.initializeWorkflow(lead._id.toString(), userId || 'system');
+    await auditService.logAction('CREATE_LEAD', 'Lead', lead._id.toString(), userId, null, lead);
+    return lead;
+  }
 
-export const getLeadById = async (id: string): Promise<ILead | null> => {
-  return await Lead.findById(id).populate('desired_package');
-};
+  async getAllLeads(): Promise<ILead[]> {
+    return this.leads.getAllWithPackage();
+  }
 
-export const updateLeadStatus = async (id: string, status: ILead['status'], userId?: string): Promise<ILead | null> => {
-  const oldLead = await Lead.findById(id);
-  const updated = await Lead.findByIdAndUpdate(id, { status }, { new: true });
-  
-  if (oldLead && updated) {
-    await auditService.logAction('UPDATE_LEAD_STATUS', 'Lead', id, userId, oldLead.status, status);
-    
+  async getLeadById(id: string): Promise<ILead> {
+    const lead = await this.leads.getByIdWithPackage(id);
+    if (!lead) throw AppError.notFound('Lead not found');
+    return lead;
+  }
+
+  async updateLeadStatus(id: string, status: ILead['status'], userId?: string): Promise<ILead | null> {
+    const oldLead = await this.leads.get(id);
+    const updated = await this.leads.updateStatus(id, status);
+
+    if (oldLead && updated) {
+      await auditService.logAction('UPDATE_LEAD_STATUS', 'Lead', id, userId, oldLead.status, status);
+      await this.handleStatusSideEffects(updated, status, userId);
+    }
+
+    return updated;
+  }
+
+  private async handleStatusSideEffects(
+    lead: ILead,
+    status: ILead['status'],
+    userId?: string,
+  ): Promise<void> {
     if (status === 'qualified') {
-      const wf = await workflowService.getWorkflowByLeadOrBooking(id, 'lead');
+      const wf = await workflowService.getWorkflowByLeadOrBooking(lead._id.toString(), 'lead');
       if (wf) {
-        await workflowService.advanceWorkflow(wf._id.toString(), WorkflowState.QUALIFIED, userId || 'system', 'Lead marked as qualified');
+        await workflowService.advanceWorkflow(
+          wf._id.toString(),
+          WorkflowState.QUALIFIED,
+          userId || 'system',
+          'Lead marked as qualified',
+        );
       }
-      await notificationService.sendNotification('admin', updated.email, 'Lead Qualified', `Lead ${updated.client_name} has been qualified.`, ['in_app', 'email']);
+      await notificationService.sendNotification(
+        'admin',
+        lead.email,
+        'Lead Qualified',
+        `Lead ${lead.client_name} has been qualified.`,
+        ['in_app', 'email'],
+      );
     } else if (status === 'converted') {
-      await notificationService.sendNotification('admin', updated.email, 'Lead Converted', `Lead ${updated.client_name} has been converted.`, ['in_app']);
+      await notificationService.sendNotification(
+        'admin',
+        lead.email,
+        'Lead Converted',
+        `Lead ${lead.client_name} has been converted.`,
+        ['in_app'],
+      );
     }
   }
-  
-  return updated;
-};
+}
+
+export const leadService = new LeadService();
+export default leadService;

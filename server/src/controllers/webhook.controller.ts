@@ -1,20 +1,24 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { webhookService } from '../services/webhook.service';
+import { sendSuccess } from '../utils/apiResponse';
+import { AppError } from '../utils/apiError';
 
 export const handleRazorpayWebhook = asyncHandler(async (req: Request, res: Response) => {
   const signature = req.headers['x-razorpay-signature'] as string;
-  const payload = req.body;
-  // We need the raw body string for verification.
-  // Assuming body-parser or express.json parses it, but we can stringify it for HMAC validation.
-  const rawBody = JSON.stringify(payload);
+  if (!signature) throw AppError.badRequest('Missing signature');
 
-  if (!signature) {
-    res.status(400);
-    throw new Error('Missing signature');
+  // The webhook route is mounted with express.raw(), so req.body is a Buffer
+  // containing the exact bytes Razorpay signed. HMAC must run on these bytes.
+  const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : JSON.stringify(req.body);
+
+  let payload: any;
+  try {
+    payload = JSON.parse(rawBody);
+  } catch {
+    throw AppError.badRequest('Invalid JSON payload');
   }
 
-  await webhookService.processWebhook(payload, signature, rawBody);
-
-  res.status(200).json({ status: 'ok' });
+  const result = await webhookService.processWebhook(payload, signature, rawBody);
+  sendSuccess(res, result ?? { status: 'ok' }, 'Webhook processed');
 });
