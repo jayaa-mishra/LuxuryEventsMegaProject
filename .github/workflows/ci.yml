@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -29,7 +29,7 @@ jobs:
 
     - name: Type Check Frontend
       run: npm run typecheck
-      continue-on-error: true # Allow to fail for now if there are lingering TS errors
+      continue-on-error: true
 
     - name: Build Frontend
       run: npm run build
@@ -46,14 +46,14 @@ jobs:
       run: npm audit --audit-level=high
       continue-on-error: true
 
-    - name: Generate Build Artifacts (Frontend)
-      uses: actions/upload-artifact@v3
+    - name: Upload Frontend Build
+      uses: actions/upload-artifact@v4
       with:
         name: frontend-dist
         path: dist/
 
-    - name: Generate Build Artifacts (Backend)
-      uses: actions/upload-artifact@v3
+    - name: Upload Backend Build
+      uses: actions/upload-artifact@v4
       with:
         name: backend-dist
         path: server/dist/
