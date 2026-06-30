@@ -1,6 +1,6 @@
 import express from 'express';
 import { getMyPayments, getAllPayments } from '../controllers/payment.controller';
-import { protect, adminOnly } from '../middlewares/auth.middleware';
+import { protect, admin } from '../middlewares/auth.middleware';
 
 const router = express.Router();
 
@@ -30,6 +30,6 @@ router.get('/my-payments', protect, getMyPayments);
  *       200:
  *         description: List of all payments
  */
-router.get('/', protect, adminOnly, getAllPayments);
+router.get('/', protect, admin, getAllPayments);
 
 export default router;
