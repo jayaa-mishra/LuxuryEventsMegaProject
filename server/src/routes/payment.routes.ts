@@ -1,52 +1,35 @@
 import express from 'express';
-import { createPaymentOrder, verifyPayment, getMyPayments } from '../controllers/payment.controller';
-import { protect } from '../middlewares/auth.middleware';
-import { validateRequest } from '../middlewares/validate.middleware';
-import { createPaymentOrderValidator, verifyPaymentValidator } from '../middlewares/validators';
+import { getMyPayments, getAllPayments } from '../controllers/payment.controller';
+import { protect, adminOnly } from '../middlewares/auth.middleware';
 
 const router = express.Router();
 
 /**
  * @swagger
- * /payments/order:
- *   post:
- *     summary: Create Razorpay Order
+ * /payments/my-payments:
+ *   get:
+ *     summary: Get authenticated client's payment history
  *     tags: [Payments]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Order created
+ *         description: List of payments
  */
-router.post('/order', protect, createPaymentOrderValidator, validateRequest, createPaymentOrder);
 router.get('/my-payments', protect, getMyPayments);
 
 /**
  * @swagger
- * /payments/verify:
- *   post:
- *     summary: Verify Razorpay Payment
+ * /payments:
+ *   get:
+ *     summary: Get all payments (admin only)
  *     tags: [Payments]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Payment verified
+ *         description: List of all payments
  */
-router.post('/verify', protect, verifyPaymentValidator, validateRequest, verifyPayment);
-
-import { handleRazorpayWebhook } from '../controllers/webhook.controller';
-
-/**
- * @swagger
- * /payments/webhook:
- *   post:
- *     summary: Razorpay Webhook
- *     tags: [Payments]
- *     responses:
- *       200:
- *         description: Webhook processed
- */
-router.post('/webhook', handleRazorpayWebhook);
+router.get('/', protect, adminOnly, getAllPayments);
 
 export default router;

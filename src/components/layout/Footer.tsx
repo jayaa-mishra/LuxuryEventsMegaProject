@@ -56,12 +56,12 @@ export default function Footer() {
               </li>
               <li>
                 <a href="tel:+1234567890" className="hover:text-rose transition-colors border-b border-transparent hover:border-rose pb-0.5">
-                  +1 (800) 555-0199
+                  +91 98765 43210
                 </a>
               </li>
               <li className="pt-4 text-blush/50 text-xs">
-                725 5th Ave, New York<br />
-                NY 10022, United States
+                14 Prithviraj Road, Lutyens' Delhi<br />
+                New Delhi, 110011, India
               </li>
             </ul>
           </div>

@@ -15,7 +15,7 @@ export default function InquiryPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("submitting");
-    const payload = { 
+    const payload = {
       client_name: formData.name,
       email: formData.email,
       phone: formData.phone,
@@ -24,10 +24,10 @@ export default function InquiryPage() {
       budget: formData.budget_range,
       message: formData.message
     };
-    
+
     const success = await submitLead(payload);
-    if (!success) { 
-      setStatus("error"); 
+    if (!success) {
+      setStatus("error");
     }
     else {
       setStatus("success");
@@ -46,7 +46,7 @@ export default function InquiryPage() {
   return (
     <main className="min-h-screen bg-blush selection:bg-rose selection:text-blush">
       <div className="bg-rose h-16 w-full fixed top-0 z-40"></div>
-      
+
       <section className="pt-32 pb-32 px-6 max-w-3xl mx-auto flex flex-col items-center">
         <ScrollReveal>
           <h1 className="text-5xl md:text-7xl font-light mb-16 text-center text-plum">
@@ -125,8 +125,8 @@ export default function InquiryPage() {
                 <p className="text-rose text-sm font-sans animate-fade-in">There was an error submitting your inquiry. Please try again.</p>
               )}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={status === "submitting"}
                 className="w-full bg-rose text-blush font-sans text-xs uppercase tracking-[0.2em] py-6 btn-luxury hover:bg-plum disabled:opacity-50 mt-12"
               >

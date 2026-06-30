@@ -85,8 +85,15 @@ export interface Gallery {
   _id: string;
   title: string;
   description: string;
+  longDescription?: string;
   category: string;
+  location?: string;
+  year?: number;
+  guestCount?: number;
+  services?: string[];
   images: GalleryImage[];
+  testimonial?: { quote: string; author: string; role: string };
+  stats?: { label: string; value: string }[];
   createdAt?: string;
   updatedAt?: string;
 }

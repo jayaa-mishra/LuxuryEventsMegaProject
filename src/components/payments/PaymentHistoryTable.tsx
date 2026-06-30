@@ -8,7 +8,7 @@ export function PaymentHistoryTable() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await apiClient.get('/payments/my-payments');
+        const res = await apiClient.get('/client/payments');
         setPayments(res.data.data ?? []);
       } catch (err) {
         console.error('Failed to fetch payments', err);

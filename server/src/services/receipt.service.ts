@@ -44,7 +44,7 @@ class ReceiptService {
       
       doc.fontSize(12).text(`Receipt Number: ${receiptNumber}`);
       doc.text(`Date: ${date.toLocaleDateString()}`);
-      doc.text(`Transaction ID: ${payment.transactionId || payment.razorpayOrderId}`);
+      doc.text(`Transaction ID: ${payment.transactionId || '—'}`);
       doc.moveDown();
 
       doc.text(`Customer Name: ${client.name}`);

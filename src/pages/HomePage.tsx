@@ -1,6 +1,7 @@
 import Image from "@/components/common/Image";
 import ScrollReveal from "@/components/layout/ScrollReveal";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export default function HomePage() {
   return (
@@ -52,8 +53,8 @@ export default function HomePage() {
             <a href="/portfolio" className="px-8 py-4 bg-rose text-blush font-sans text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:text-plum hover:shadow-xl hover:shadow-white/10 rounded-sm">
               View Portfolio
             </a>
-            <a href="/inquiry" className="px-8 py-4 border border-blush/30 text-blush font-sans text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-blush hover:text-plum rounded-sm backdrop-blur-sm">
-              Inquire Now
+            <a href="/inquiry" className="group px-8 py-4 border border-blush/30 font-sans text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:border-white rounded-sm backdrop-blur-sm">
+              <span className="text-blush group-hover:text-plum transition-colors duration-300">Inquire Now</span>
             </a>
           </motion.div>
         </div>
@@ -115,6 +116,7 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
              <ScrollReveal delay={1} className="group relative aspect-[4/3] overflow-hidden rounded-sm cursor-pointer shadow-xl">
+               <Link to="/commissions/metropolitan-gala" className="block absolute inset-0 z-30" />
                <div className="absolute inset-0 bg-plum/20 group-hover:bg-plum/40 transition-colors duration-500 z-10" />
                <Image src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2000&auto=format&fit=crop" alt="Corporate Gala" fill className="object-cover img-zoom" />
                <div className="absolute bottom-0 left-0 p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -122,8 +124,9 @@ export default function HomePage() {
                   <h3 className="text-3xl font-serif text-blush">The Metropolitan Gala</h3>
                </div>
              </ScrollReveal>
-             
+
              <ScrollReveal delay={2} className="group relative aspect-[4/3] overflow-hidden rounded-sm cursor-pointer shadow-xl">
+               <Link to="/commissions/lake-como" className="block absolute inset-0 z-30" />
                <div className="absolute inset-0 bg-plum/20 group-hover:bg-plum/40 transition-colors duration-500 z-10" />
                <Image src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2000&auto=format&fit=crop" alt="Destination Wedding" fill className="object-cover img-zoom" />
                <div className="absolute bottom-0 left-0 p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -146,7 +149,7 @@ export default function HomePage() {
             {[
               { title: "Dream", desc: "Every masterpiece begins with a vision. We sit down with you to unearth the aesthetic, the mood, and the feeling you want to evoke.", img: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1500&auto=format&fit=crop" },
               { title: "Design", desc: "Our architects of ambiance render your dream into blueprints. Color palettes, textures, and spatial flows are meticulously mapped.", img: "https://images.unsplash.com/photo-1505909182942-e2f09aee3e89?q=80&w=1500&auto=format&fit=crop" },
-              { title: "Execute", desc: "Precision meets passion. Our global network of elite artisans and producers bring the renders to life, ensuring flawless delivery.", img: "https://images.unsplash.com/photo-1540656041131-01eaeb3841e4?q=80&w=1500&auto=format&fit=crop" },
+              { title: "Execute", desc: "Precision meets passion. Our global network of elite artisans and producers bring the renders to life, ensuring flawless delivery.", img: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1500&auto=format&fit=crop" },
               { title: "Celebrate", desc: "You remain a guest at your own event. We remain invisible orchestrators, ensuring every micro-interaction is perfection.", img: "https://images.unsplash.com/photo-1485872299829-c673f5194813?q=80&w=1500&auto=format&fit=crop" }
             ].map((step, idx) => (
                <div key={step.title} className={`flex flex-col md:flex-row items-center gap-12 ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}>
@@ -197,34 +200,40 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
 
-      {/* Team Grid */}
-      <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
-         <ScrollReveal>
-           <h2 className="font-sans text-[10px] tracking-[0.2em] uppercase text-plum/50 mb-16 border-b border-rose/20 pb-4">Our Expertise</h2>
-         </ScrollReveal>
-         
-         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-            {[
-              { name: "Jayaa Mishra", role: "Creative Director", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1500&auto=format&fit=crop" },
-              { name: "Alexander Sterling", role: "Production Head", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1500&auto=format&fit=crop" },
-              { name: "Elena Vasquez", role: "Lead Event Designer", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1500&auto=format&fit=crop" },
-              { name: "Marcus Chen", role: "Client Relations", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1500&auto=format&fit=crop" }
-            ].map((member, index) => (
-               <ScrollReveal key={member.name} delay={(index % 4) as 0 | 1 | 2 | 3} className="group card-hover">
-                 <div className="relative w-full aspect-[3/4] mb-6 bg-rose/5 overflow-hidden rounded-sm border border-plum/5">
-                    <Image 
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      unoptimized
-                      className="object-cover grayscale mix-blend-multiply opacity-90 group-hover:grayscale-0 group-hover:opacity-100 img-zoom transition-all duration-700"
-                    />
-                 </div>
-                 <h3 className="font-sans text-xs tracking-[0.15em] uppercase text-plum mb-2 transition-colors duration-300 group-hover:text-rose">{member.name}</h3>
-                 <p className="font-serif text-plum/55 italic transition-colors duration-300 group-hover:text-plum/80">{member.role}</p>
-               </ScrollReveal>
-            ))}
-         </div>
+      {/* Founder spotlight */}
+      <section className="py-32 px-6 md:px-16 max-w-7xl mx-auto">
+        <ScrollReveal className="mb-20">
+          <h2 className="font-sans text-[10px] tracking-[0.2em] uppercase text-plum/50 mb-4 border-b border-rose/20 pb-4 inline-block">The Founder</h2>
+        </ScrollReveal>
+        <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+          <ScrollReveal direction="left" className="w-full lg:w-2/5 shrink-0">
+            <div className="relative aspect-3/4 overflow-hidden rounded-sm shadow-2xl group">
+              <Image
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1200&auto=format&fit=crop"
+                alt="Jayaa Mishra"
+                fill
+                unoptimized
+                className="object-cover grayscale group-hover:grayscale-0 img-zoom transition-all duration-700"
+              />
+            </div>
+          </ScrollReveal>
+          <div className="flex-1">
+            <ScrollReveal>
+              <p className="font-sans text-[9px] tracking-[0.3em] uppercase text-rose border-b border-rose/20 pb-3 inline-block mb-6">Web Developer & Digital Strategist</p>
+              <h3 className="text-4xl md:text-5xl font-light text-plum mb-6">Jayaa <span className="italic font-serif">Mishra</span></h3>
+            </ScrollReveal>
+            <ScrollReveal delay={1} className="space-y-5 font-serif text-lg text-plum/70 leading-relaxed">
+              <p>Jayaa Mishra is a web developer and digital strategist based in Lucknow, Uttar Pradesh. She builds digital solutions that combine technology, user experience, and business impact — working at the intersection of product thinking and digital transformation.</p>
+              <p>Her experience spans website development, UX improvements, performance optimisation, and stakeholder collaboration across business and AgriTech projects. She evaluates website architecture, identifies growth opportunities, and supports the implementation of digital initiatives.</p>
+              <p>Alongside frontend development with React.js, she is actively expanding into backend development, cloud technologies, and scalable full-stack applications. Currently working at Intecco Technical Services Private Limited and a graduate of the University of Lucknow.</p>
+            </ScrollReveal>
+            <ScrollReveal delay={2} className="mt-10 flex gap-4 flex-wrap">
+              {["React.js · JavaScript", "UX & Digital Strategy", "Backend & Cloud", "Lucknow, India"].map(tag => (
+                <span key={tag} className="font-sans text-[9px] tracking-[0.2em] uppercase text-plum/60 border border-plum/15 px-4 py-2">{tag}</span>
+              ))}
+            </ScrollReveal>
+          </div>
+        </div>
       </section>
     </main>
   );

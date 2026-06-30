@@ -2,6 +2,10 @@ import apiClient from '../config/apiClient';
 import { User, ApiResponse } from '../types/models';
 
 export const authService = {
+  register: async (data: Record<string, string>) => {
+    const { data: res } = await apiClient.post<ApiResponse<User>>('/auth/register', data);
+    return res.data;
+  },
   login: async (credentials: Record<string, string>) => {
     const { data } = await apiClient.post<ApiResponse<User>>('/auth/login', credentials);
     return data.data;

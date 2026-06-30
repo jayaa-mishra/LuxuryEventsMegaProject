@@ -14,10 +14,6 @@ export class PaymentRepository extends CrudRepository<IPayment> {
     return this.create(data);
   }
 
-  async getPaymentByOrderId(orderId: string): Promise<IPayment | null> {
-    return this.findOne({ razorpayOrderId: orderId });
-  }
-
   async updatePaymentStatus(id: string, updates: Partial<IPayment>): Promise<IPayment | null> {
     return this.update(id, updates);
   }

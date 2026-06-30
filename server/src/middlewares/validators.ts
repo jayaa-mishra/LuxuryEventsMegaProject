@@ -60,16 +60,6 @@ export const createGalleryValidator = [
   body('category').trim().notEmpty().withMessage('category is required'),
 ];
 
-export const createPaymentOrderValidator = [
-  body('bookingId').isMongoId().withMessage('Valid bookingId is required'),
-];
-
-export const verifyPaymentValidator = [
-  body('razorpayOrderId').trim().notEmpty().withMessage('razorpayOrderId is required'),
-  body('razorpayPaymentId').trim().notEmpty().withMessage('razorpayPaymentId is required'),
-  body('razorpaySignature').trim().notEmpty().withMessage('razorpaySignature is required'),
-];
-
 export const advanceWorkflowValidator = [
   param('id').isMongoId().withMessage('Invalid workflow id'),
   body('state').isIn(Object.values(WorkflowState)).withMessage('Invalid target state'),

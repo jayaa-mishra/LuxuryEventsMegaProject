@@ -1,8 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IPayment extends Document {
-  transactionId?: string; 
-  razorpayOrderId?: string;
+  transactionId?: string;
   amount: number;
   currency: string;
   status: 'pending' | 'paid' | 'failed' | 'refunded';
@@ -16,7 +15,6 @@ export interface IPayment extends Document {
 
 const paymentSchema = new Schema<IPayment>({
   transactionId: { type: String },
-  razorpayOrderId: { type: String },
   amount: { type: Number, required: true },
   currency: { type: String, default: 'INR' },
   status: { type: String, enum: ['pending', 'paid', 'failed', 'refunded'], default: 'pending' },

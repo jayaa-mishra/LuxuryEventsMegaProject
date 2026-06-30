@@ -21,6 +21,7 @@ import workflowRoutes from './routes/workflow.routes';
 import auditRoutes from './routes/audit.routes';
 import paymentRoutes from './routes/payment.routes';
 import notificationRoutes from './routes/notification.routes';
+import clientRoutes from './routes/client.routes';
 import { setupSwagger } from './config/swagger';
 
 dotenv.config();
@@ -48,10 +49,6 @@ app.use(cors({
   credentials: true,
 }));
 
-// Razorpay webhook needs the RAW body for HMAC verification, so capture it as a
-// Buffer before the JSON parser runs. express.json() then skips it (req._body set).
-app.use('/api/v1/payments/webhook', express.raw({ type: '*/*' }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -74,6 +71,7 @@ app.use('/api/v1/workflows', workflowRoutes);
 app.use('/api/v1/audit', auditRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/client', clientRoutes);
 
 // Root route
 app.get('/', (req, res) => {

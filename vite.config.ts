@@ -19,7 +19,7 @@ export default defineConfig({
     // VITE_GATEWAY_URL if the gateway runs elsewhere.
     proxy: {
       '/api': {
-        target: process.env.VITE_GATEWAY_URL || 'http://localhost:8080',
+        target: process.env.VITE_GATEWAY_URL || 'http://localhost:5000',
         changeOrigin: true,
       },
     },

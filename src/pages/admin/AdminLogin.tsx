@@ -25,7 +25,26 @@ export default function AdminLogin() {
   };
 
   return (
-    <main className="min-h-screen bg-rose flex items-center justify-center p-6 selection:bg-plum selection:text-blush">
+    <div className="min-h-screen bg-rose selection:bg-plum selection:text-blush">
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 w-full z-50 bg-plum shadow-lg shadow-plum/30">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-16">
+          <Link to="/" className="font-sans text-xs tracking-[0.2em] uppercase font-semibold text-blush hover:opacity-70 transition-opacity">
+            Luxury Events
+          </Link>
+          <div className="hidden md:flex items-center gap-8 font-sans text-[11px] tracking-[0.25em] uppercase text-blush">
+            <Link to="/portfolio" className="hover:opacity-70 transition-opacity">Portfolio</Link>
+            <Link to="/about" className="hover:opacity-70 transition-opacity">About</Link>
+            <Link to="/press" className="hover:opacity-70 transition-opacity">Press</Link>
+            <Link to="/inquiry" className="hover:opacity-70 transition-opacity">Inquire</Link>
+            <Link to="/client/login" className="px-4 py-2 bg-blush text-plum font-sans text-[10px] tracking-[0.2em] uppercase hover:bg-white transition-colors duration-200 rounded-sm">
+              Client Portal
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <main className="flex items-center justify-center p-6 pt-28">
       <div className="w-full max-w-md">
         <div className="text-center mb-16">
           <h1 className="text-blush text-4xl md:text-5xl font-light mb-4">
@@ -78,6 +97,7 @@ export default function AdminLogin() {
            </Link>
         </div>
       </div>
-    </main>
+      </main>
+    </div>
   );
 }

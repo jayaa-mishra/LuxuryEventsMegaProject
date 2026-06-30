@@ -6,11 +6,29 @@ interface IGalleryImage {
   is_primary: boolean;
 }
 
+interface IGalleryTestimonial {
+  quote: string;
+  author: string;
+  role: string;
+}
+
+interface IGalleryStats {
+  label: string;
+  value: string;
+}
+
 export interface IGallery extends Document {
   title: string;
   description: string;
   category: string;
   images: IGalleryImage[];
+  location?: string;
+  year?: number;
+  guestCount?: number;
+  services?: string[];
+  longDescription?: string;
+  testimonial?: IGalleryTestimonial;
+  stats?: IGalleryStats[];
 }
 
 const gallerySchema = new Schema<IGallery>(
@@ -23,6 +41,22 @@ const gallerySchema = new Schema<IGallery>(
         url: { type: String, required: true },
         public_id: { type: String, required: true },
         is_primary: { type: Boolean, default: false },
+      },
+    ],
+    location: { type: String },
+    year: { type: Number },
+    guestCount: { type: Number },
+    services: [{ type: String }],
+    longDescription: { type: String },
+    testimonial: {
+      quote: { type: String },
+      author: { type: String },
+      role: { type: String },
+    },
+    stats: [
+      {
+        label: { type: String },
+        value: { type: String },
       },
     ],
   },
